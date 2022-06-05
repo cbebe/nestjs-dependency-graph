@@ -1,82 +1,65 @@
 import { DynamicModule, Injectable } from "@nestjs/common";
-import {
-  GLOBAL_MODULE_METADATA,
-  MODULE_METADATA,
-} from "@nestjs/common/constants";
+import { GLOBAL_MODULE_METADATA, MODULE_METADATA } from "@nestjs/common/constants";
 import "reflect-metadata";
 
+type ModuleClass = any;
+type ProviderClass = any;
+
 interface ModuleData {
-  module: any;
-  meta: {
+  module?: ModuleClass;
+  meta?: {
     imports: ModuleData[];
-    providers: any[];
-    controllers: any[];
-    exports: any[];
+    providers: ProviderClass[];
+    controllers: ProviderClass[];
+    exports: ProviderClass[];
     isGlobal: boolean;
   };
 }
 
+export type GraphData = { name: string; children: GraphData[] };
+
 @Injectable()
 export class DependencyGraphService {
-  private graphData: any;
+  private _graphData: GraphData;
 
-  constructor() {}
-
-  async setRootModule(module: any) {
-    const data = await this.scanModule(module);
-    this.graphData = this.mapToGraphStructure(data);
+  async setRootModule(moduleClass: ModuleData) {
+    const data = await scanModule(moduleClass);
+    this._graphData = mapToGraphStructure(data);
   }
 
-  getGraphData() {
-    return this.graphData;
+  get graphData() {
+    return this._graphData;
+  }
+}
+
+const mapToGraphStructure = (moduleData: ModuleData) => ({
+  name: `${moduleData.module.module?.name || moduleData.module.name}${moduleData.meta.isGlobal ? ` | GLOBAL` : ""}`,
+  children: moduleData.meta.imports.map(mapToGraphStructure),
+});
+
+async function scanModule(moduleClass: ModuleData): Promise<ModuleData> {
+  const isDynamicModule = (mod: ModuleClass): boolean => mod && !!(mod as DynamicModule).module;
+  const getMeta = (key: string): (ModuleClass | ProviderClass)[] => Reflect.getMetadata(key, moduleClass) || [];
+
+  moduleClass = await Promise.resolve(moduleClass);
+  const data: ModuleData = {
+    module: moduleClass,
+    meta: {
+      imports: await Promise.all(getMeta(MODULE_METADATA.IMPORTS).map(scanModule)),
+      providers: getMeta(MODULE_METADATA.PROVIDERS),
+      controllers: getMeta(MODULE_METADATA.CONTROLLERS),
+      exports: getMeta(MODULE_METADATA.EXPORTS),
+      isGlobal: !!Reflect.getMetadata(GLOBAL_MODULE_METADATA, module),
+    },
+  };
+
+  if (isDynamicModule(moduleClass)) {
+    const dynModuleImports = ((moduleClass as DynamicModule).imports as ModuleData[]) || [];
+    data.meta.imports = data.meta.imports.concat(await Promise.all(dynModuleImports.map(scanModule)));
+    data.meta.providers = data.meta.providers.concat((moduleClass as DynamicModule).providers || []);
+    data.meta.controllers = data.meta.controllers.concat((moduleClass as DynamicModule).controllers || []);
+    data.meta.exports = data.meta.exports.concat((moduleClass as DynamicModule).exports || []);
   }
 
-  private mapToGraphStructure(moduleData: any) {
-    let name = moduleData.module.module
-      ? moduleData.module.module.name
-      : moduleData.module.name;
-    name = moduleData.meta.isGlobal ? `${name} | GLOBAL` : name;
-    return {
-      name,
-      children: moduleData.meta.imports.map((m) => this.mapToGraphStructure(m)),
-    };
-  }
-
-  private async scanModule(module: any): Promise<ModuleData> {
-    const isDynamicModule = (mod: any): boolean =>
-      mod && !!(mod as DynamicModule).module;
-    const getMeta = (key: any): any[] => Reflect.getMetadata(key, module) || [];
-
-    module = await Promise.resolve(module);
-    const data: ModuleData = {
-      module,
-      meta: {
-        imports: await Promise.all(
-          getMeta(MODULE_METADATA.IMPORTS).map((m) => this.scanModule(m))
-        ),
-        providers: getMeta(MODULE_METADATA.PROVIDERS),
-        controllers: getMeta(MODULE_METADATA.CONTROLLERS),
-        exports: getMeta(MODULE_METADATA.EXPORTS),
-        isGlobal: !!Reflect.getMetadata(GLOBAL_MODULE_METADATA, module),
-      },
-    };
-
-    if (isDynamicModule(module)) {
-      const dynModuleImports = (module as DynamicModule).imports || [];
-      data.meta.imports = data.meta.imports.concat(
-        await Promise.all(dynModuleImports.map((m) => this.scanModule(m)))
-      );
-      data.meta.providers = data.meta.providers.concat(
-        (module as DynamicModule).providers || []
-      );
-      data.meta.controllers = data.meta.controllers.concat(
-        (module as DynamicModule).controllers || []
-      );
-      data.meta.exports = data.meta.exports.concat(
-        (module as DynamicModule).exports || []
-      );
-    }
-
-    return data;
-  }
+  return data;
 }
