@@ -6,7 +6,7 @@
 npm install --global nestjs-dependency-graph
 ```
 
-### Add to package.json scripts
+### Add to `package.json` scripts
 
 ```json
   "scripts": {
@@ -14,7 +14,7 @@ npm install --global nestjs-dependency-graph
   }
 ```
 
-Don't forget to update correct path to your root app.module file
+Don't forget to update the path to your root app.module file.
 
 ### Run
 
@@ -24,3 +24,7 @@ Don't forget to update correct path to your root app.module file
 ```
 
 Open `http//:localhost:3000`
+
+### Usage with Nx
+
+See [docs/Nx.md](docs/Nx.md) for information.

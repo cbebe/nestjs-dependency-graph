@@ -14,7 +14,8 @@
     "url": "https://github.com/cbebe/nestjs-dependency-graph.git"
   },
   "bin": {
-    "nest-dg": "dist/index.js"
+    "nest-dg": "dist/index.js",
+    "nest-dg-resolve": "dist/resolve.js"
   },
   "files": [
     "dist",
@@ -32,6 +33,7 @@
     "fastify": "^3.29.0",
     "fastify-static": "^4.7.0",
     "mime-types": "^2.1.35",
+    "readdirp": "^3.6.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5"
   },
