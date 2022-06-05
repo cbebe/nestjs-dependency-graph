@@ -1,16 +1,27 @@
 {
   "name": "nestjs-dependency-graph",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "View the dependency graph of a particular NestJS module",
   "license": "MIT",
   "main": "dist/index.js",
+  "author": {
+    "name": "Charles Ancheta",
+    "email": "cancheta.dev@gmail.com",
+    "url": "https://charlesancheta.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cbebe/nestjs-dependency-graph.git"
+  },
+  "bin": {
+    "nest-dg": "dist/index.js"
+  },
   "files": [
-    "dist"
+    "dist",
+    "static"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "start": "npm run build && node dist/index.js",
     "prepare": "npm run build"
   },
   "dependencies": {
