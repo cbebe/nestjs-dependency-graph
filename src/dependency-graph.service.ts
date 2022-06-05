@@ -1,4 +1,9 @@
 import { DynamicModule, Injectable } from "@nestjs/common";
+import {
+  GLOBAL_MODULE_METADATA,
+  MODULE_METADATA,
+} from "@nestjs/common/constants";
+import "reflect-metadata";
 
 interface ModuleData {
   module: any;
@@ -17,7 +22,7 @@ export class DependencyGraphService {
 
   constructor() {}
 
-  async setRootModule<T>(module: T) {
+  async setRootModule(module: any) {
     const data = await this.scanModule(module);
     this.graphData = await this.mapToGraphStructure(data);
   }
@@ -37,10 +42,8 @@ export class DependencyGraphService {
     };
   }
 
-  private async scanModule<T extends DynamicModule>(
-    module: T
-  ): Promise<ModuleData> {
-    const isDynamicModule = (mod: T): boolean =>
+  private async scanModule(module: any): Promise<ModuleData> {
+    const isDynamicModule = (mod: any): boolean =>
       mod && !!(mod as DynamicModule).module;
     const getMeta = (key: any): any[] => Reflect.getMetadata(key, module) || [];
 
@@ -48,7 +51,9 @@ export class DependencyGraphService {
     const data: ModuleData = {
       module,
       meta: {
-        imports: await Promise.all(getMeta().map((m) => this.scanModule(m))),
+        imports: await Promise.all(
+          getMeta(MODULE_METADATA.IMPORTS).map((m) => this.scanModule(m))
+        ),
         providers: getMeta(MODULE_METADATA.PROVIDERS),
         controllers: getMeta(MODULE_METADATA.CONTROLLERS),
         exports: getMeta(MODULE_METADATA.EXPORTS),

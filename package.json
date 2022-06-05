@@ -5,13 +5,18 @@
   "author": "",
   "license": "MIT",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json && cp src/index.html dist/index.html",
     "start": "npm run build && node dist/index.js",
     "prepare": "npm run build"
   },
   "dependencies": {
+    "@nestjs/common": "^8.4.6",
     "@nestjs/core": "^8.4.6",
+    "@nestjs/platform-express": "^8.4.6",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5"
   },
