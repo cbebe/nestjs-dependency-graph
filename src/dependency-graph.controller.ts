@@ -1,19 +1,21 @@
-import { Controller, Get, Res } from '@nestjs/common';
-import { DependencyGraphService } from './dependency-graph.service';
+import { Controller, Get, Response } from "@nestjs/common";
+import { FastifyReply } from "fastify";
+import { createReadStream } from "fs";
+import { resolve } from "path";
+import { DependencyGraphService } from "./dependency-graph.service";
 
 @Controller()
 export class DependencyGraphController {
-  constructor(private graphService: DependencyGraphService) {
-  }
+  constructor(private graphService: DependencyGraphService) {}
 
   @Get()
-  async get(@Res() res) {
-    res.sendFile(`${__dirname}/index.html`);
+  async get(@Response() res: FastifyReply) {
+    const stream = createReadStream(resolve(__dirname, "index.html"));
+    res.type("text/html").send(stream);
   }
 
-  @Get('tree-data')
-  async treeData(@Res() res) {
-    const stringified = JSON.stringify(this.graphService.getGraphData());
-    res.send(`var treeData = [${stringified}]`);
+  @Get("tree-data")
+  async treeData() {
+    return JSON.stringify(this.graphService.getGraphData());
   }
 }

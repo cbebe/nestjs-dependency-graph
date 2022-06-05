@@ -24,7 +24,7 @@ export class DependencyGraphService {
 
   async setRootModule(module: any) {
     const data = await this.scanModule(module);
-    this.graphData = await this.mapToGraphStructure(data);
+    this.graphData = this.mapToGraphStructure(data);
   }
 
   getGraphData() {

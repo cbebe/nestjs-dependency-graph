@@ -1,4 +1,8 @@
 import { NestFactory } from "@nestjs/core";
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from "@nestjs/platform-fastify";
 import { existsSync } from "fs";
 import { resolve } from "path";
 import { DependencyGraphModule } from "./dependency-graph.module";
@@ -29,12 +33,15 @@ async function bootstrap() {
     );
   }
 
-  const app = await NestFactory.create(DependencyGraphModule);
+  const app = await NestFactory.create<NestFastifyApplication>(
+    DependencyGraphModule,
+    new FastifyAdapter()
+  );
 
   const moduleClass = moduleExports[0];
   app.get(DependencyGraphService).setRootModule(moduleClass);
 
-  await app.listen(3000);
+  await app.listen(3000, "127.0.0.1");
   await app.init();
 
   console.log("Graph ready on http://localhost:3000");
