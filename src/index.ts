@@ -3,7 +3,7 @@ import { FastifyAdapter, NestFastifyApplication } from "@nestjs/platform-fastify
 import { existsSync } from "fs";
 import { resolve } from "path";
 import { DependencyGraphModule } from "./dependency-graph.module";
-import { DependencyGraphService } from "./dependency-graph.service";
+import { DependencyGraphService, ModuleData } from "./dependency-graph.service";
 
 async function bootstrap() {
   const args = process.argv.slice(2);
@@ -19,7 +19,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestFastifyApplication>(DependencyGraphModule, new FastifyAdapter());
 
-  app.get(DependencyGraphService).setRootModule(moduleExports[0]);
+  app.get(DependencyGraphService).setRootModule(moduleExports[0] as ModuleData);
 
   await app.listen(3000, "127.0.0.1");
 

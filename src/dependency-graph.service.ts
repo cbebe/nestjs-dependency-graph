@@ -5,9 +5,9 @@ import "reflect-metadata";
 type ModuleClass = any;
 type ProviderClass = any;
 
-interface ModuleData {
-  module?: ModuleClass;
-  meta?: {
+export interface ModuleData {
+  module: ModuleClass;
+  meta: {
     imports: ModuleData[];
     providers: ProviderClass[];
     controllers: ProviderClass[];
@@ -16,7 +16,7 @@ interface ModuleData {
   };
 }
 
-export type GraphData = { name: string; children: GraphData[] };
+export type GraphData = { name: string; children?: GraphData[] };
 
 @Injectable()
 export class DependencyGraphService {
@@ -32,9 +32,9 @@ export class DependencyGraphService {
   }
 }
 
-const mapToGraphStructure = (moduleData: ModuleData) => ({
-  name: `${moduleData.module.module?.name || moduleData.module.name}${moduleData.meta.isGlobal ? ` | GLOBAL` : ""}`,
-  children: moduleData.meta.imports.map(mapToGraphStructure),
+const mapToGraphStructure = (moduleData: ModuleData): GraphData => ({
+  name: `${moduleData.module.module.name || moduleData.module.name}${moduleData.meta.isGlobal ? ` | GLOBAL` : ""}`,
+  children: moduleData.meta.imports.map(mapToGraphStructure) || [],
 });
 
 async function scanModule(moduleClass: ModuleData): Promise<ModuleData> {
