@@ -21,7 +21,7 @@ And then run `nx make-raw my-app`. This creates a new directory called `dist/res
 
 ```json
   "scripts": {
-    "nest-dep-graph": "nx make-raw app && nest-dg dist/resolved/apps/app.module.js"
+    "nest-dep-graph": "nx make-raw app && nest-dg dist/resolved/apps/my-app/src/app.module.js"
   }
 ```
 
