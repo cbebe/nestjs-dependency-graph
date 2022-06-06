@@ -33,7 +33,7 @@ export class DependencyGraphService {
 }
 
 const mapToGraphStructure = (moduleData: ModuleData): GraphData => ({
-  name: `${moduleData.module.module.name || moduleData.module.name}${moduleData.meta.isGlobal ? ` | GLOBAL` : ""}`,
+  name: `${moduleData.module.module?.name || moduleData.module.name}${moduleData.meta.isGlobal ? ` | GLOBAL` : ""}`,
   children: moduleData.meta.imports.map(mapToGraphStructure) || [],
 });
 
