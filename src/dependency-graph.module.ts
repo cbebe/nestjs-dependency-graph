@@ -6,8 +6,6 @@ import { DependencyGraphService } from "./dependency-graph.service";
 
 @Module({
   imports: [
-    // fastify-static is deprecated. Watch for this PR:
-    // https://github.com/nestjs/serve-static/pull/872
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "static"),
     }),
